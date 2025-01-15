@@ -1,0 +1,7 @@
+en.subject*
+SnowCrash.iso
+.env
+__pycache__
+.venv
+.vscode
+solutions.json

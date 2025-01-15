@@ -4,8 +4,11 @@ CONTAINER = snow-crash-solver
 build:
 	docker build -t $(IMG) .
 
+build-no-cache:
+	docker build --no-cache -t $(IMG) .
+
 run:
-	docker run -it --rm $(IMG) --$(CONTAINER) 
+	docker run -it --rm --name $(CONTAINER) $(IMG) 
 
 stop:
 	docker stop $(CONTAINER)
@@ -16,4 +19,12 @@ clean: stop
 fclean: clean
 	docker rmi $(IMG) || true
 
-.PHONY: build run stop clean fclean
+re: clean build run
+
+logs:
+	docker logs $(CONTAINER)
+
+logs-follow:
+	docker logs -f $(CONTAINER)
+
+.PHONY: build run stop clean fclean re logs logs-follow
