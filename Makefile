@@ -21,6 +21,9 @@ fclean: clean
 
 re: clean build run
 
+shell:
+	docker exec -it $(CONTAINER) /bin/bash
+
 logs:
 	docker logs $(CONTAINER)
 
