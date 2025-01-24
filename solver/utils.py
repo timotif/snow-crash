@@ -2,6 +2,11 @@ from .ssh import SSHConnection
 from .config import IP, PORT 
 from paramiko import AuthenticationException
 
+def extract_flag(response):
+	if "Here is your token" in response:
+		return response.split(':')[-1].strip()
+	return None
+
 def getflag(level, password) -> str | None:
 	"""Connects as 'flag{level} and retrieves the flag from the server.
 	If the flag is not found, returns None."""
@@ -12,9 +17,7 @@ def getflag(level, password) -> str | None:
 		password
 	)
 	response = connection.exec("getflag")
-	if "Here is your token" in response:
-		return response.split(':')[-1].strip()
-	return None
+	return extract_flag(response)
 
 def caesar_cipher(text: str, shift: int) -> str:
 	if shift < 0:

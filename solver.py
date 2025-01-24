@@ -2,11 +2,20 @@ from solver.config import *
 from solver.ssh import SSHConnection
 import json
 import importlib
+import os
 
 flags = {}
 prev = "00"
 
+def import_flags():
+	if not os.exists(JSON):
+		return
+	global flags
+	data = json.loads(JSON)
+	print(data)
+
 def main():
+	# TODO: import solved flags from json
 	for lvl in [str(n).zfill(2) for n in range(LEVELS_SOLVED)]:
 		try:
 			connection = SSHConnection(
