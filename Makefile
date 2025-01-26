@@ -14,6 +14,12 @@ APP_DIR = /snow-crash
 RM = rm -f
 IP = 192.168.1.10
 PORT = 4242
+SOLUTIONS = solutions.json
+LEVEL ?= ALL
+# Checkers
+IMAGE_EXISTS := $(shell docker images -q $(IMG))
+CONTAINER_EXISTS := $(shell docker ps -q -f name=$(CONTAINER))
+CONTAINER_IS_RUNNING := $(shell docker inspect -f '{{.State.Running}}' $(CONTAINER) 2>/dev/null)
 
 config:
 	@./config.sh
@@ -28,28 +34,47 @@ build-no-cache:
 	@echo "$(CYAN)Building $(IMG) image from scratch...$(RESET)"
 	@docker build --no-cache -t $(IMG) .
 
+solve:
+	@echo "$(CYAN)Solving level(s) $(LEVEL)...$(RESET)"
+	@if [ -z "$(CONTAINER_IS_RUNNING)" ]; then \
+		make -s run; \
+	fi
+	@docker exec $(CONTAINER) /bin/bash -c "export LEVEL=$(LEVEL) && python solver.py"
+
 run:
-	@echo "$(CYAN)Running $(IMG) container...$(RESET)"
+	@if [ -z "$(IMAGE_EXISTS)" ]; then \
+		make -s build; \
+	fi
+	@echo "$(CYAN)Starting $(CONTAINER) container...$(RESET)"
 	@docker run \
-		-it \
+		-d \
 		--rm \
 		--name $(CONTAINER) \
 		-v $(PWD):$(APP_DIR) \
 		-e IP=$(IP) \
 		-e PORT=$(PORT) \
-		$(IMG) 
+		-e LEVEL=$(LEVEL) \
+		$(IMG)
+	@echo "$(GREEN)$(CONTAINER) container is running.$(RESET)"
 
 stop:
 	@echo "$(CYAN)Stopping $(CONTAINER) container...$(RESET)"
-	@docker stop $(CONTAINER)
+	@if [ ! -z "$(CONTAINER_IS_RUNNING)" ]; then \
+		docker stop $(CONTAINER); \
+	fi
+	@echo "$(RED)$(CONTAINER) container has been stopped.$(RESET)"
 
 clean: stop
 	@echo "$(CYAN)Removing $(CONTAINER) container...$(RESET)"
 	@docker rm $(CONTAINER) || true
 
 fclean: clean
-	@echo "$(CYAN)Removing $(IMG) image...$(RESET)"
+	@echo -n "$(CYAN)Removing $(IMG) image... "
 	@docker rmi $(IMG) || true
+	@echo "done$(RESET)"
+	@echo -n "$(CYAN)Removing $(SOLUTIONS) file... "
+	@$(RM) $(SOLUTIONS)
+	@echo "done$(RESET)"
 
 re: clean build run
 
@@ -67,16 +92,27 @@ logs-follow:
 
 help:
 	@echo "$(CYAN)Usage:$(RESET)"
-	@echo " make [config]		- Configure and run the container"
-	@echo " make build		- Build the image"
-	@echo " make build-no-cache	- Build the image from scratch"
-	@echo " make run		- Run the container"
-	@echo " make stop		- Stop the container"
-	@echo " make clean		- Remove the container"
-	@echo " make fclean		- Remove the image"
-	@echo " make re		- Rebuild the image and run the container"
-	@echo " make shell		- Start a shell in the container"
-	@echo " make logs		- Display the logs of the container"
-	@echo " make logs-follow	- Display the logs of the container and follow them"
+	@echo ""
+	@echo "$(YELLOW) make config$(RESET)          - Configure and run the container"
+	@echo ""
+	@echo "$(YELLOW) make solve$(RESET)           - Solve the level(s)"
+	@echo "    $(MAGENTA)LEVEL=XX$(RESET)         - Specify the level(s) to solve"
+	@echo "    $(MAGENTA)LEVEL=ALL$(RESET)        - Solve all levels"
+	@echo "    $(MAGENTA)LEVEL=XX-YY$(RESET)      - Solve levels from XX to YY"
+	@echo "    $(MAGENTA)LEVEL=XX,YY$(RESET)      - Solve levels XX and YY"
+	@echo "    $(MAGENTA)LEVEL=XX,YY-ZZ$(RESET)   - Solve levels XX, YY and ZZ"
+	@echo "    $(MAGENTA)LEVEL=MANDATORY$(RESET)  - Solve all mandatory levels"
+	@echo "    $(MAGENTA)LEVEL=BONUS$(RESET)      - Solve all bonus levels"
+	@echo ""
+	@echo "$(YELLOW) make build$(RESET)          - Build the image"
+	@echo "$(YELLOW) make build-no-cache$(RESET) - Build the image from scratch"
+	@echo "$(YELLOW) make run$(RESET)            - Run the container"
+	@echo "$(YELLOW) make stop$(RESET)           - Stop the container"
+	@echo "$(YELLOW) make clean$(RESET)          - Remove the container"
+	@echo "$(YELLOW) make fclean$(RESET)         - Remove the image"
+	@echo "$(YELLOW) make re$(RESET)             - Rebuild the image and run the container"
+	@echo "$(YELLOW) make shell$(RESET)          - Start a shell in the container"
+	@echo "$(YELLOW) make logs$(RESET)           - Display the logs of the container"
+	@echo "$(YELLOW) make logs-follow$(RESET)    - Display the logs of the container and follow them"
 
 .PHONY: build run stop clean fclean re logs logs-follow
