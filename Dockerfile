@@ -8,7 +8,9 @@ RUN apt update && apt upgrade -y && \
 	python3-venv \
 	ssh \
 	john \
-	tshark
+	tshark \
+	gdb \
+	xxd
 # net-tools
 # ssh
 # iputils-ping
