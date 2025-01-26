@@ -1,4 +1,6 @@
-IP = "192.168.1.59"
-PORT = 4242
+import os
+
+IP = os.getenv("IP")
+PORT = os.getenv("PORT")
 LEVELS_SOLVED = 3
 JSON = "solutions.json"

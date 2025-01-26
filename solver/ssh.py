@@ -39,21 +39,27 @@ class SSHConnection:
 		self.password = password
 		self.client = SSHClient()
 		self.client.set_missing_host_key_policy(AutoAddPolicy())
-		self.client.connect(
-			self.ip,
-			port=self.port,
-			username=self.username,
-			password=self.password
-		)
-		self.scp = SCPClient(self.client.get_transport())
+		try:
+			self.client.connect(
+				self.ip,
+				port=self.port,
+				username=self.username,
+				password=self.password
+			)
+			self.scp = SCPClient(self.client.get_transport())
+		except Exception as e:
+			raise Exception(f"Failed to connect to {self.ip}:{self.port} as {self.username}")
 
 	def __del__(self):
 		self.close()
 
 	def close(self):
-		self.client.close()
-		self.scp.close()
-
+		try:
+			self.client.close()
+			self.scp.close()
+		except Exception as e:
+			pass
+		
 	def exec(self, command: str) -> str:
 		stdin, stdout, stderr = self.client.exec_command(command)
 		error = stderr.read()

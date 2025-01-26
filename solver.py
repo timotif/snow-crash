@@ -16,6 +16,7 @@ def import_flags():
 
 def main():
 	# TODO: import solved flags from json
+	global prev
 	for lvl in [str(n).zfill(2) for n in range(LEVELS_SOLVED)]:
 		try:
 			connection = SSHConnection(
