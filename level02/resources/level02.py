@@ -6,10 +6,10 @@ TMP_FILE = ".tmp"
 
 def solve(connection):
 	# Download the pcap file
-	connection.download("/home/user/level02/level02.pcap", f"level02/resources")
+	connection.download("/home/user/level02/level02.pcap", TMP_FILE)
 	# Follow the stream of packets to find the flag password
 	stream = subprocess.run(
-		["tshark", "-r", f"level02/resources/level02.pcap", "-z", "follow,tcp,hex,0"], 
+		["tshark", "-r", TMP_FILE, "-z", "follow,tcp,hex,0"], 
 		capture_output=True, 
 		check=True
 	).stdout.decode("utf-8").split("\n")
@@ -30,5 +30,5 @@ def solve(connection):
 		ch = chr(int(hex, 16))
 		token += ch
 	flag = getflag("02", token)
-	os.remove("level02/resources/level02.pcap")
+	os.remove(TMP_FILE)
 	return token, flag

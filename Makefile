@@ -26,7 +26,6 @@ stop:
 
 clean: stop
 	docker rm $(CONTAINER) || true
-	$(RM) level02/resources/level02.pcap
 
 fclean: clean
 	docker rmi $(IMG) || true
