@@ -63,8 +63,9 @@ class SSHConnection:
 	def exec(self, command: str) -> str:
 		stdin, stdout, stderr = self.client.exec_command(command)
 		error = stderr.read()
-		if not error:
-			return stdout.read().decode().strip()
+		output = stdout.read().decode()
+		if output:
+			return output.strip()
 		return "Error: " + error.decode().strip()
 	
 	def download(self, file: str, dest: str = "."):
