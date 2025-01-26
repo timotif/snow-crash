@@ -64,7 +64,7 @@ class SSHConnection:
 		stdin, stdout, stderr = self.client.exec_command(command)
 		error = stderr.read()
 		output = stdout.read().decode()
-		if output:
+		if output.strip():
 			return output.strip()
 		return "Error: " + error.decode().strip()
 	

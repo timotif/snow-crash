@@ -4,7 +4,7 @@ from paramiko import AuthenticationException
 
 def extract_flag(response):
 	if "Here is your token" in response:
-		return response.split(':')[-1].strip()
+		return response.split('token :')[-1].split()[0]
 	return None
 
 def getflag(level, password) -> str | None:
