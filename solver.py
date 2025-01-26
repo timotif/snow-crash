@@ -4,37 +4,43 @@ import json
 import importlib
 import os
 
-flags = {}
-prev = "00"
+flags = {"start": "level00"}
+prev = "start"
 
 def import_flags():
-	if not os.exists(JSON):
+	if not os.path.exists(JSON):
 		return
 	global flags
-	data = json.loads(JSON)
-	print(data)
+	with open(JSON, "r") as f:
+		flags = json.load(f)
 
 def main():
-	# TODO: import solved flags from json
+	# TODO: force computing without retrieving flags
+	import_flags()
 	global prev
 	for lvl in [str(n).zfill(2) for n in range(LEVELS_SOLVED)]:
+		if flags.get(lvl):
+			prev = lvl
+			print(f"Level {lvl} solved! Flag: {flags.get(lvl)}")
+			continue
 		try:
 			connection = SSHConnection(
 				IP,
 				PORT,
 				f"level{lvl}",
-				flags.get(prev, "level00")
+				flags.get(prev)
 			)
 			level_solver = importlib.import_module(f"level{lvl}.resources.level{lvl}")
-			flag, password = level_solver.solve(connection)
-			if flag and password:
-				flags[f"flag{lvl}"] = flag
-				flags[lvl] = password
+			token, flag = level_solver.solve(connection)
+			if not flag:
+				print(f"Level {lvl} not solved.")
+			else:
+				if token:
+					flags[f"flag{lvl}"] = token
+				flags[lvl] = flag
 				prev = lvl
 				json.dump(flags, open(JSON, "w"))
-				print(f"Level {lvl} solved! Flag: {password}")
-			else:
-				print(f"Level {lvl} not solved.")
+				print(f"Level {lvl} solved! Flag: {flag}")
 			connection.close()
 		except Exception as e:
 			print(f"Level {lvl} not solved: {e}")
