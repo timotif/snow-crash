@@ -1,8 +1,9 @@
 import threading
 import subprocess
 import os
+from solver.utils import getflag
 
-flag = ""
+token = ""
 
 def find_ip():
 	"""
@@ -39,13 +40,13 @@ def find_ip():
 	return None
 
 def start_server(stop_event):
-	global flag
+	global token
 	server = subprocess.Popen(["nc", "-l", "-k", "6969"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	while not stop_event.is_set():
 		output = server.stdout.readline().decode()
 		if output:
 			if not (".*( )*." in output or "hello" in output):
-				flag = output
+				token = output.strip()
 				stop_event.set()
 				break
 	server.kill()
@@ -90,5 +91,5 @@ def solve(connection):
 			if thread.is_alive():
 				thread.join(timeout=2)
 		connection.exec("rm -f /tmp/mine /tmp/token")  # Cleanup files
-		return "", flag
+		return token, getflag("10", token)
 
