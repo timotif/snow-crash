@@ -12,7 +12,7 @@ IMG = snow-crash-solver
 CONTAINER = snow-crash-solver
 APP_DIR = /snow-crash
 RM = rm -f
-IP = 192.168.1.10
+IP = 192.168.1.14
 PORT = 4242
 SOLUTIONS = solutions.json
 LEVEL ?= ALL
@@ -51,6 +51,7 @@ run:
 		--rm \
 		--name $(CONTAINER) \
 		-v $(PWD):$(APP_DIR) \
+		--network host \
 		-e IP=$(IP) \
 		-e PORT=$(PORT) \
 		-e LEVEL=$(LEVEL) \

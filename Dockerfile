@@ -10,7 +10,9 @@ RUN apt update && apt upgrade -y && \
 	john \
 	tshark \
 	gdb \
-	xxd
+	xxd \
+	net-tools \
+	netcat-openbsd
 
 # Activating the virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
@@ -19,6 +21,8 @@ RUN python3 -m venv /opt/venv && \
 	pip install --upgrade pip && \
 	pip install paramiko \
 				scp
+
+EXPOSE 6969
 
 WORKDIR /snow-crash
 
