@@ -4,7 +4,7 @@ import json
 import importlib
 import os
 
-flags = {"start": "level00"}
+flags = {"-1": "level00"}
 
 def import_flags():
 	if not os.path.exists(JSON):
@@ -35,9 +35,8 @@ def parse_levels():
 def find_last_level():
 	for lvl in range(LEVELS_SOLVED):
 		if not flags.get(str(lvl).zfill(2)):
-			if lvl == 0:
-				return "start"
 			return str(lvl - 1).zfill(2)
+	return str(lvl).zfill(2)
 
 def main():
 	import_flags()

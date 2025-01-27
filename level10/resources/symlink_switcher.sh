@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Creating a file I own
+echo "hello" > /tmp/myfile
+
 # Switching constantly a symlink between a file I own and the one I want 
 while true
 	do
