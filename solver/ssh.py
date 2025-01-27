@@ -69,7 +69,23 @@ class SSHConnection:
 		return "Error: " + error.decode().strip()
 	
 	def download(self, file: str, dest: str = "."):
+		"""
+		Downloads a file from the remote server to the local destination.
+		Args:
+			file (str): The path to the file on the remote server.
+			dest (str, optional): The local destination directory. Defaults to the current directory.
+		Returns:
+			None
+		"""
 		self.scp.get(file, dest)
 
 	def upload(self, file: str, dest: str = "$HOME"):
+		"""
+		Uploads a file to a remote destination using SCP.
+		Args:
+			file (str): The path to the local file to be uploaded.
+			dest (str, optional): The destination path on the remote server. Defaults to "$HOME".
+		Returns:
+			None
+		"""
 		self.scp.put(file, dest)
