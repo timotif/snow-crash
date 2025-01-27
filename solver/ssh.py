@@ -70,3 +70,6 @@ class SSHConnection:
 	
 	def download(self, file: str, dest: str = "."):
 		self.scp.get(file, dest)
+
+	def upload(self, file: str, dest: str = "$HOME"):
+		self.scp.put(file, dest)
