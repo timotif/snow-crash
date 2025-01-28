@@ -12,7 +12,7 @@
 ## 🚀 Installation
 1. **Clone this repository:**  
    ```bash
-   git clone https://github.com/username/snow-crash.git
+   git clone https://github.com/timotif/snow-crash.git
    cd snow-crash
    ```
 
