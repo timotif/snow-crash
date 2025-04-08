@@ -68,7 +68,7 @@ def main():
 				flags[lvl] = flag
 				prev = lvl
 				json.dump(flags, open(JSON, "w"))
-				print(f"Level {lvl} solved! Flag: {flag}")
+				print(f"Level {lvl} solved! Flag: {flag}", flush=True)
 			connection.close()
 		except Exception as e:
 			print(f"Level {lvl} not solved: {e}")
