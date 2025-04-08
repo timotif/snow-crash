@@ -12,4 +12,6 @@ def solve(connection):
 			print("Waiting for flag...", flush=True)
 			continue
 		else:
-			return "", extract_flag(flag)
+			extracted_flag = extract_flag(flag) 
+			connection.exec("rm /tmp/flag")
+			return "", extracted_flag
