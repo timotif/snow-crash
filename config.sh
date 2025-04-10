@@ -9,7 +9,14 @@ WHITE='\033[0;37m'
 RESET='\033[0m'
 
 clear
-echo -e "${WHITE}SNOW CRASH${RESET}\n\n"
+echo -e "${RED}"
+echo -e "	   _____                      _____               _"
+echo -e "	  / ____|                    / ____|             | |    "
+echo -e "	 | (___  _ __   _____      _| |     _ __ __ _ ___| |__  "
+echo -e "	  \___ \| '_ \ / _ \ \ /\ / / |    | '__/ _\` / __| '_ \ "
+echo -e "	  ____) | | | | (_) \ V  V /| |____| | | (_| \__ \ | | |"
+echo -e "	 |_____/|_| |_|\___/ \_/\_/  \_____|_|  \__,_|___/_| |_|"
+echo 
 echo -e "${GREEN}Welcome to the Snow Crash environment configuration script!${RESET}\n"
 echo -e "${YELLOW}This script will install all the necessary tools and dependencies for the Snow Crash project.${RESET}\n"
 echo -e "${YELLOW}1. Boot ${BLUE}SnowCrash.iso${YELLOW} virtual machine with your favorite emulator.${RESET}"
