@@ -26,5 +26,8 @@ read -e IP
 sed -i "s/^IP = .*/IP = $IP/" Makefile && echo -e "${GREEN}IP address updated in Makefile${RESET}"
 echo -ne "${YELLOW}3. What's the port the virtual machine is listening to? ${BLUE}(Default 4242)${RESET}\n"
 read -e PORT
+if [ -z "$PORT" ]; then
+  PORT=4242
+fi
 sed -i "s/^PORT = .*/PORT = $PORT/" Makefile && echo -e "${GREEN}SSH port updated in Makefile${RESET}"
 echo -e "\n${GREEN}That should do it! Configuration complete.${RESET}\n"
